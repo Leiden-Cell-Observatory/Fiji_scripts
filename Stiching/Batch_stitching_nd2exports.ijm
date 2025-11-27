@@ -5,7 +5,7 @@
 #@ Integer (label="Grid size Y", value=3) gridY
 #@ Integer (label="Tile overlap (%)", value=10) tileOverlap
 #@ Integer (label="Number of channels", value=4) nChannels
-#@ Integer (label="Number of Z-slices", value=11) nSlices
+#@ Integer (label="Number of Z-slices", value=11) numZSlices
 
 /*
  * Grid Stitching and Hyperstack Conversion for Multi-Well Plates
@@ -33,7 +33,7 @@
  * - 10% tile overlap
  * 
  * Developed by Maarten Paul (m.w.paul@lacdr.leidenuniv.nl) @maartenpaul at Github
- * Version 2025-01-09: Initial version
+ * Version 2025-01-09: Initial version with flexible parameters
  */
 
 setBatchMode(true);
@@ -62,15 +62,9 @@ for (i = 0; i < fileList.length; i++) {
 // Sort well IDs alphabetically
 Array.sort(wellIDs);
 
-print("Found " + wellIDs.length + " wells to process:");
-Array.print(wellIDs);
-print("Grid configuration: " + gridX + " x " + gridY);
-print("Channels: " + nChannels + ", Z-slices: " + nSlices);
-
 // Process each well
 for (w = 0; w < wellIDs.length; w++) {
     wellID = wellIDs[w];
-    print("\nProcessing well " + wellID + "...");
     
     // Construct file pattern for stitching
     filePattern = baseName + "_" + wellID + "_{iiii}.tif";
@@ -98,7 +92,7 @@ for (w = 0; w < wellIDs.length; w++) {
     run("Stack to Hyperstack...", 
         "order=xyczt(default) " +
         "channels=" + nChannels + " " +
-        "slices=" + nSlices + " " +
+        "slices=" + numZSlices + " " +
         "frames=1 " +
         "display=Color");
     
@@ -106,13 +100,9 @@ for (w = 0; w < wellIDs.length; w++) {
     outputPath = outputDir + File.separator + wellID + ".tif";
     saveAs("Tiff", outputPath);
     close();
-    
-    print("Saved: " + outputPath);
 }
 
 setBatchMode(false);
-print("\n=== Processing complete ===");
-print("Processed " + wellIDs.length + " wells");
 
 // Helper function to check if array contains value
 function arrayContains(array, value) {
